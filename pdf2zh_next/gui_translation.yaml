@@ -27,6 +27,8 @@ de:
   Download Translation (Dual): Übersetzung herunterladen (Dual)
   Download Translation (Mono): Übersetzung herunterladen (Mono)
   Download automatically extracted glossary: Automatisch extrahiertes Glossar herunterladen
+  Enable thinking mode for DeepSeek v4 models: Denkmodus für DeepSeek-v4-Modelle aktivieren
+  Reasoning effort for DeepSeek thinking mode (high/max): Reasoning-Aufwand für DeepSeek-Denkmodus (high/max)
   Effective only when a page range is specified.: Nur wirksam, wenn ein Seitenbereich angegeben ist.
   Enable auto term extraction: Automatische Begriffsermittlung aktivieren
   Enhance compatibility (auto-enables skip_clean and disable_rich_text): Kompatibilität verbessern (aktiviert automatisch skip_clean und disable_rich_text)
@@ -127,6 +129,8 @@ en:
   Download Translation (Dual): Download Translation (Dual)
   Download Translation (Mono): Download Translation (Mono)
   Download automatically extracted glossary: Download automatically extracted glossary
+  Enable thinking mode for DeepSeek v4 models: Enable thinking mode for DeepSeek v4 models
+  Reasoning effort for DeepSeek thinking mode (high/max): Reasoning effort for DeepSeek thinking mode (high/max)
   Effective only when a page range is specified.: Effective only when a page range is specified.
   Enable auto term extraction: Enable auto term extraction
   Enhance compatibility (auto-enables skip_clean and disable_rich_text): Enhance compatibility (auto-enables skip_clean and disable_rich_text)
@@ -227,6 +231,8 @@ es:
   Download Translation (Dual): Descargar Traducción (Dual)
   Download Translation (Mono): Descargar traducción (Mono)
   Download automatically extracted glossary: Descargar glosario extraído automáticamente
+  Enable thinking mode for DeepSeek v4 models: Activar modo de pensamiento para modelos DeepSeek v4
+  Reasoning effort for DeepSeek thinking mode (high/max): Esfuerzo de razonamiento para modo de pensamiento DeepSeek (high/max)
   Effective only when a page range is specified.: Solo tiene efecto cuando se especifica un rango de páginas.
   Enable auto term extraction: Habilitar extracción automática de términos
   Enhance compatibility (auto-enables skip_clean and disable_rich_text): Mejorar compatibilidad (activa automáticamente skip_clean y disable_rich_text)
@@ -327,6 +333,8 @@ fr:
   Download Translation (Dual): Télécharger la traduction (Bilingue)
   Download Translation (Mono): Télécharger la traduction (Mono)
   Download automatically extracted glossary: Télécharger le glossaire extrait automatiquement
+  Enable thinking mode for DeepSeek v4 models: Activer le mode réflexion pour les modèles DeepSeek v4
+  Reasoning effort for DeepSeek thinking mode (high/max): Effort de raisonnement pour le mode réflexion DeepSeek (high/max)
   Effective only when a page range is specified.: Efficace uniquement lorsqu'une plage de pages est spécifiée.
   Enable auto term extraction: Activer l'extraction automatique de termes
   Enhance compatibility (auto-enables skip_clean and disable_rich_text): Améliorer la compatibilité (active automatiquement skip_clean et disable_rich_text)
@@ -427,6 +435,8 @@ it:
   Download Translation (Dual): Scarica traduzione (Doppia)
   Download Translation (Mono): Scarica Traduzione (Mono)
   Download automatically extracted glossary: Scarica il glossario estratto automaticamente
+  Enable thinking mode for DeepSeek v4 models: Abilita modalità pensiero per i modelli DeepSeek v4
+  Reasoning effort for DeepSeek thinking mode (high/max): Sforzo di ragionamento per modalità pensiero DeepSeek (high/max)
   Effective only when a page range is specified.: Effettivo solo se è specificato un intervallo di pagine.
   Enable auto term extraction: Abilita estrazione automatica dei termini
   Enhance compatibility (auto-enables skip_clean and disable_rich_text): Migliora compatibilità (abilita automaticamente skip_clean e disable_rich_text)
@@ -532,6 +542,8 @@ ja:
   Download Translation (Dual): 翻訳をダウンロード（双方向）
   Download Translation (Mono): 翻訳のダウンロード (モノ)
   Download automatically extracted glossary: 自動抽出された用語集をダウンロード
+  Enable thinking mode for DeepSeek v4 models: DeepSeek v4 モデルの思考モードを有効にする
+  Reasoning effort for DeepSeek thinking mode (high/max): DeepSeek 思考モードの reasoning effort (high/max)
   Effective only when a page range is specified.: ページ範囲が指定されている場合にのみ有効
   Enable auto term extraction: 自動用語抽出を有効にする
   Enhance compatibility (auto-enables skip_clean and disable_rich_text): 互換性を向上（skip_clean と disable_rich_text を自動で有効化）
@@ -632,6 +644,8 @@ ko:
   Download Translation (Dual): 번역본 다운로드 (이중)
   Download Translation (Mono): 번역본 다운로드 (모노)
   Download automatically extracted glossary: 자동으로 추출된 용어집 다운로드
+  Enable thinking mode for DeepSeek v4 models: DeepSeek v4 모델의 사고 모드 활성화
+  Reasoning effort for DeepSeek thinking mode (high/max): DeepSeek 사고 모드의 reasoning effort (high/max)
   Effective only when a page range is specified.: 페이지 범위를 지정한 경우에만 유효합니다.
   Enable auto term extraction: 자동 용어 추출 활성화
   Enhance compatibility (auto-enables skip_clean and disable_rich_text): 호환성 향상 (skip_clean 및 disable_rich_text 자동 활성화)
@@ -732,6 +746,8 @@ pt:
   Download Translation (Dual): Baixar Tradução (Dual)
   Download Translation (Mono): Baixar Tradução (Mono)
   Download automatically extracted glossary: Baixar glossário extraído automaticamente
+  Enable thinking mode for DeepSeek v4 models: Ativar modo de pensamento para modelos DeepSeek v4
+  Reasoning effort for DeepSeek thinking mode (high/max): Esforço de raciocínio para modo de pensamento DeepSeek (high/max)
   Effective only when a page range is specified.: Efetivo apenas quando um intervalo de páginas é especificado.
   Enable auto term extraction: Ativar extração automática de termos
   Enhance compatibility (auto-enables skip_clean and disable_rich_text): Melhorar compatibilidade (ativa automaticamente skip_clean e disable_rich_text)
@@ -832,6 +848,8 @@ ru:
   Download Translation (Dual): Скачать перевод (Двойной)
   Download Translation (Mono): Скачать перевод (Моно)
   Download automatically extracted glossary: Скачать автоматически извлеченный глоссарий
+  Enable thinking mode for DeepSeek v4 models: Включить режим размышления для моделей DeepSeek v4
+  Reasoning effort for DeepSeek thinking mode (high/max): Усилие рассуждения для режима размышления DeepSeek (high/max)
   Effective only when a page range is specified.: Действительно только при указании диапазона страниц.
   Enable auto term extraction: Включить автоматическое извлечение терминов
   Enhance compatibility (auto-enables skip_clean and disable_rich_text): Улучшить совместимость (автоматически включает skip_clean и disable_rich_text)
@@ -932,6 +950,8 @@ zh:
   Download Translation (Dual): 下载翻译（双语）
   Download Translation (Mono): 下载翻译（单语版）
   Download automatically extracted glossary: 下载自动提取的词汇表
+  Enable thinking mode for DeepSeek v4 models: 启用 DeepSeek v4 模型思考模式
+  Reasoning effort for DeepSeek thinking mode (high/max): DeepSeek 思考模式推理强度（high/max）
   Effective only when a page range is specified.: 仅在指定页面范围时有效。
   Enable auto term extraction: 启用自动术语提取
   Enhance compatibility (auto-enables skip_clean and disable_rich_text): 增强兼容性（自动启用 skip_clean 和 disable_rich_text）
@@ -1032,6 +1052,8 @@ zh-TW:
   Download Translation (Dual): 下載翻譯（雙語）
   Download Translation (Mono): 下載翻譯 (單聲道)
   Download automatically extracted glossary: 下載自動擷取的詞彙表
+  Enable thinking mode for DeepSeek v4 models: 啟用 DeepSeek v4 模型思考模式
+  Reasoning effort for DeepSeek thinking mode (high/max): DeepSeek 思考模式推理強度（high/max）
   Effective only when a page range is specified.: 僅在指定頁面範圍時有效。
   Enable auto term extraction: 啟用自動術語擷取
   Enhance compatibility (auto-enables skip_clean and disable_rich_text): 增強相容性（自動啟用 skip_clean 和 disable_rich_text）
