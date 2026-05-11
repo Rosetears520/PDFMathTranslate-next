@@ -208,7 +208,10 @@ class DeepSeekSettings(BaseModel):
         self.deepseek_api_key = _clean_string(self.deepseek_api_key)
         self.deepseek_model = _clean_string(self.deepseek_model)
         self.deepseek_reasoning_effort = _clean_string(self.deepseek_reasoning_effort)
-        if self.deepseek_reasoning_effort not in (None, "high", "max"):
+        if self.deepseek_reasoning_effort and self.deepseek_reasoning_effort not in (
+            "high",
+            "max",
+        ):
             raise ValueError("DeepSeek reasoning effort must be high or max")
 
     def transform(self) -> OpenAISettings:
