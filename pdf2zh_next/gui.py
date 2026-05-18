@@ -586,7 +586,7 @@ def _build_translate_settings(
     translate_settings = base_settings.clone()
     original_output = translate_settings.translation.output
     original_pages = translate_settings.pdf.pages
-    original_gui_settings = config_manager.config_cli_settings.gui_settings
+    original_gui_settings = translate_settings.gui_settings.model_copy(deep=True)
 
     # Extract UI values
     service = ui_inputs.get("service")
