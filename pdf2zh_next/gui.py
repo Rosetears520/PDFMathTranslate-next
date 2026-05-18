@@ -108,6 +108,58 @@ def _gui_field_update(field, visible: bool, current_value=None):
     return gr.update(**update_kwargs)
 
 
+def _enhance_compatibility_option_updates(enhance_value: bool):
+    if enhance_value:
+        return (
+            gr.update(**_enhance_compatibility_control_policy(True, False)),
+            gr.update(**_enhance_compatibility_control_policy(True, False)),
+            gr.update(**_enhance_compatibility_control_policy(True, False)),
+        )
+    return (
+        gr.update(interactive=True),
+        gr.update(interactive=True),
+        gr.update(interactive=True),
+    )
+
+
+def _enhance_compatibility_control_policy(
+    enhance_value: bool,
+    configured_value: bool,
+) -> dict[str, bool]:
+    return {
+        "value": True if enhance_value else configured_value,
+        "interactive": not enhance_value,
+    }
+
+
+def _enhance_compatibility_config_updates(
+    enhance_value: bool,
+    skip_clean_value: bool,
+    disable_rich_text_translate_value: bool,
+    dual_translate_first_value: bool,
+):
+    return (
+        gr.update(
+            **_enhance_compatibility_control_policy(
+                enhance_value,
+                skip_clean_value,
+            )
+        ),
+        gr.update(
+            **_enhance_compatibility_control_policy(
+                enhance_value,
+                disable_rich_text_translate_value,
+            )
+        ),
+        gr.update(
+            **_enhance_compatibility_control_policy(
+                enhance_value,
+                dual_translate_first_value,
+            )
+        ),
+    )
+
+
 def _persisted_gui_settings_with_ui_lang(ui_lang: str):
     config_cli_settings = getattr(config_manager, "config_cli_settings", None)
     if config_cli_settings is not None:
@@ -3001,6 +3053,24 @@ with gr.Blocks(
 
                     # PDF Output Options
                     gr.Markdown(_("## PDF Output Options"))
+                    compatibility_dual_translate_first_policy = (
+                        _enhance_compatibility_control_policy(
+                            settings.pdf.enhance_compatibility,
+                            settings.pdf.dual_translate_first,
+                        )
+                    )
+                    compatibility_skip_clean_policy = (
+                        _enhance_compatibility_control_policy(
+                            settings.pdf.enhance_compatibility,
+                            settings.pdf.skip_clean,
+                        )
+                    )
+                    compatibility_disable_rich_text_translate_policy = (
+                        _enhance_compatibility_control_policy(
+                            settings.pdf.enhance_compatibility,
+                            settings.pdf.disable_rich_text_translate,
+                        )
+                    )
                     with gr.Row():
                         no_mono = gr.Checkbox(
                             label=_("Disable monolingual output"),
@@ -3016,8 +3086,10 @@ with gr.Blocks(
                     with gr.Row():
                         dual_translate_first = gr.Checkbox(
                             label=_("Put translated pages first in dual mode"),
-                            value=settings.pdf.dual_translate_first,
-                            interactive=True,
+                            value=compatibility_dual_translate_first_policy["value"],
+                            interactive=compatibility_dual_translate_first_policy[
+                                "interactive"
+                            ],
                         )
                         use_alternating_pages_dual = gr.Checkbox(
                             label=_("Use alternating pages for dual PDF"),
@@ -3110,16 +3182,20 @@ with gr.Blocks(
 
                         skip_clean = gr.Checkbox(
                             label=_("Skip clean (maybe improve compatibility)"),
-                            value=settings.pdf.skip_clean,
-                            interactive=True,
+                            value=compatibility_skip_clean_policy["value"],
+                            interactive=compatibility_skip_clean_policy["interactive"],
                         )
 
                         disable_rich_text_translate = gr.Checkbox(
                             label=_(
                                 "Disable rich text translation (maybe improve compatibility)"
                             ),
-                            value=settings.pdf.disable_rich_text_translate,
-                            interactive=True,
+                            value=compatibility_disable_rich_text_translate_policy[
+                                "value"
+                            ],
+                            interactive=compatibility_disable_rich_text_translate_policy[
+                                "interactive"
+                            ],
                         )
 
                         enhance_compatibility = gr.Checkbox(
@@ -3369,19 +3445,8 @@ with gr.Blocks(
             return on_dependency_change
 
         def on_enhance_compatibility_change(enhance_value):
-            """Update skip_clean and disable_rich_text_translate when enhance_compatibility changes"""
-            if enhance_value:
-                # When enhanced compatibility is enabled, both options are auto-enabled and disabled for user modification
-                return (
-                    gr.update(value=True, interactive=False),
-                    gr.update(value=True, interactive=False),
-                )
-            else:
-                # When disabled, allow user to modify these settings
-                return (
-                    gr.update(interactive=True),
-                    gr.update(interactive=True),
-                )
+            """Update compatibility options when enhance_compatibility changes."""
+            return _enhance_compatibility_option_updates(enhance_value)
 
         def on_split_short_lines_change(split_value):
             """Update short_line_split_factor visibility based on split_short_lines value"""
@@ -3607,7 +3672,7 @@ with gr.Blocks(
         enhance_compatibility.change(
             on_enhance_compatibility_change,
             enhance_compatibility,
-            [skip_clean, disable_rich_text_translate],
+            [skip_clean, disable_rich_text_translate, dual_translate_first],
         )
 
         # Add event handler for split_short_lines
@@ -3885,9 +3950,19 @@ with gr.Blocks(
                     updates.append(gr.update(value="Range"))
                     updates.append(gr.update(value=str(pages_setting), visible=True))
                 # PDF Output Options
+                (
+                    skip_clean_update,
+                    disable_rich_text_translate_update,
+                    dual_translate_first_update,
+                ) = _enhance_compatibility_config_updates(
+                    fresh_settings.pdf.enhance_compatibility,
+                    fresh_settings.pdf.skip_clean,
+                    fresh_settings.pdf.disable_rich_text_translate,
+                    fresh_settings.pdf.dual_translate_first,
+                )
                 updates.append(gr.update(value=fresh_settings.pdf.no_mono))
                 updates.append(gr.update(value=fresh_settings.pdf.no_dual))
-                updates.append(gr.update(value=fresh_settings.pdf.dual_translate_first))
+                updates.append(dual_translate_first_update)
                 updates.append(
                     gr.update(value=fresh_settings.pdf.use_alternating_pages_dual)
                 )
@@ -3947,10 +4022,8 @@ with gr.Blocks(
                     else fresh_settings.translation.primary_font_family
                 )
                 updates.append(gr.update(value=primary_font_display))
-                updates.append(gr.update(value=fresh_settings.pdf.skip_clean))
-                updates.append(
-                    gr.update(value=fresh_settings.pdf.disable_rich_text_translate)
-                )
+                updates.append(skip_clean_update)
+                updates.append(disable_rich_text_translate_update)
                 updates.append(
                     gr.update(value=fresh_settings.pdf.enhance_compatibility)
                 )

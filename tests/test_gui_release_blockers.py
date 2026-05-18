@@ -131,6 +131,116 @@ def test_on_file_upload_none_returns_all_declared_outputs(monkeypatch):
     assert result[2]["visible"] is False
 
 
+def test_enhance_compatibility_update_forces_all_babeldoc_compatibility_flags(
+    monkeypatch,
+):
+    gui = _gui(monkeypatch)
+
+    result = gui._enhance_compatibility_option_updates(True)
+
+    assert result == (
+        {"value": True, "interactive": False, "__type__": "update"},
+        {"value": True, "interactive": False, "__type__": "update"},
+        {"value": True, "interactive": False, "__type__": "update"},
+    )
+
+
+def test_enhance_compatibility_update_restores_all_compatibility_controls(
+    monkeypatch,
+):
+    gui = _gui(monkeypatch)
+
+    result = gui._enhance_compatibility_option_updates(False)
+
+    assert result == (
+        {"interactive": True, "__type__": "update"},
+        {"interactive": True, "__type__": "update"},
+        {"interactive": True, "__type__": "update"},
+    )
+
+
+def test_enhance_compatibility_initial_policy_forces_configured_false_controls(
+    monkeypatch,
+):
+    gui = _gui(monkeypatch)
+
+    result = gui._enhance_compatibility_control_policy(
+        enhance_value=True,
+        configured_value=False,
+    )
+
+    assert result == {"value": True, "interactive": False}
+
+
+def test_enhance_compatibility_reload_updates_restore_configured_false_values(
+    monkeypatch,
+):
+    gui = _gui(monkeypatch)
+
+    result = gui._enhance_compatibility_config_updates(
+        enhance_value=False,
+        skip_clean_value=False,
+        disable_rich_text_translate_value=False,
+        dual_translate_first_value=False,
+    )
+
+    assert result == (
+        {"value": False, "interactive": True, "__type__": "update"},
+        {"value": False, "interactive": True, "__type__": "update"},
+        {"value": False, "interactive": True, "__type__": "update"},
+    )
+
+
+def test_enhance_compatibility_reload_updates_force_configured_false_values(
+    monkeypatch,
+):
+    gui = _gui(monkeypatch)
+
+    result = gui._enhance_compatibility_config_updates(
+        enhance_value=True,
+        skip_clean_value=False,
+        disable_rich_text_translate_value=False,
+        dual_translate_first_value=False,
+    )
+
+    assert result == (
+        {"value": True, "interactive": False, "__type__": "update"},
+        {"value": True, "interactive": False, "__type__": "update"},
+        {"value": True, "interactive": False, "__type__": "update"},
+    )
+
+
+@pytest.mark.parametrize(
+    "overrides",
+    [
+        {"skip_clean": True},
+        {"disable_rich_text_translate": True},
+        {"skip_clean": True, "disable_rich_text_translate": True},
+    ],
+)
+def test_standalone_compatibility_options_do_not_force_dual_translate_first(
+    tmp_path, monkeypatch, overrides
+):
+    gui = _gui(monkeypatch)
+    input_pdf = tmp_path / "input.pdf"
+    input_pdf.write_bytes(b"%PDF-1.4\n")
+    output_dir = tmp_path / "out"
+    output_dir.mkdir()
+    gui_inputs = _base_gui_inputs() | overrides
+    gui_inputs["dual_translate_first"] = False
+    gui_inputs["enhance_compatibility"] = False
+
+    translate_settings = gui._build_translate_settings(
+        CLIEnvSettingsModel(),
+        input_pdf,
+        output_dir,
+        gui.SaveMode.never,
+        gui_inputs,
+    )
+
+    assert translate_settings.pdf.dual_translate_first is False
+
+
 @pytest.mark.parametrize("save_mode_name", ["always", "follow_settings"])
 def test_build_translate_settings_preserves_current_gui_language_on_save(
     tmp_path, monkeypatch, save_mode_name
