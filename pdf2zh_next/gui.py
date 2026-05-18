@@ -108,6 +108,24 @@ def _gui_field_update(field, visible: bool, current_value=None):
     return gr.update(**update_kwargs)
 
 
+def _persisted_gui_settings_with_ui_lang(ui_lang: str):
+    config_cli_settings = getattr(config_manager, "config_cli_settings", None)
+    if config_cli_settings is not None:
+        gui_settings = config_cli_settings.gui_settings.model_copy(deep=True)
+    else:
+        gui_settings = CLIEnvSettingsModel().gui_settings.model_copy(deep=True)
+    gui_settings.ui_lang = ui_lang
+    return gui_settings
+
+
+def _save_gui_language_settings(lang: str) -> None:
+    settings.gui_settings.ui_lang = lang
+    update_current_languages(lang)
+    config_save_settings = settings.clone()
+    config_save_settings.gui_settings = _persisted_gui_settings_with_ui_lang(lang)
+    config_manager.write_user_default_config_file(settings=config_save_settings)
+
+
 # The following variables associate strings with specific languages
 lang_map = {
     "English": "en",
@@ -908,7 +926,11 @@ def _build_translate_settings(
         # SaveMode.never: should_save remains False
 
         if should_save:
-            config_manager.write_user_default_config_file(settings=translate_settings)
+            config_save_settings = translate_settings.clone()
+            config_save_settings.gui_settings = _persisted_gui_settings_with_ui_lang(
+                translate_settings.gui_settings.ui_lang
+            )
+            config_manager.write_user_default_config_file(settings=config_save_settings)
             global settings
             settings = translate_settings
         temp_settings.validate_settings()
@@ -3467,10 +3489,7 @@ with gr.Blocks(
             return original_updates + rate_limit_updates + detailed_visible
 
         def on_lang_selector_change(lang):
-            settings.gui_settings.ui_lang = lang
-            update_current_languages(lang)
-            config_manager.write_user_default_config_file(settings=settings.clone())
-            return
+            _save_gui_language_settings(lang)
 
         # UI language change handler
 

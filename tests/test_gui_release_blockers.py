@@ -148,10 +148,21 @@ def test_build_translate_settings_preserves_current_gui_language_on_save(
     )
     startup_settings = gui.config_manager.config_cli_settings.clone()
     startup_settings.gui_settings.ui_lang = "en"
+    startup_settings.gui_settings.server_port = 7860
+    startup_settings.gui_settings.share = False
+    startup_settings.gui_settings.auth_file = None
+    startup_settings.gui_settings.welcome_page = "snapshot-welcome.md"
+    startup_settings.gui_settings.disable_gui_sensitive_input = True
+    startup_settings.gui_settings.disable_config_auto_save = True
     monkeypatch.setattr(gui.config_manager, "config_cli_settings", startup_settings)
 
     current_settings = CLIEnvSettingsModel()
     current_settings.gui_settings.ui_lang = "zh"
+    current_settings.gui_settings.server_port = 9999
+    current_settings.gui_settings.share = True
+    current_settings.gui_settings.auth_file = str(tmp_path / "runtime-auth.csv")
+    current_settings.gui_settings.welcome_page = "runtime-welcome.md"
+    current_settings.gui_settings.disable_gui_sensitive_input = False
     current_settings.gui_settings.disable_config_auto_save = False
     monkeypatch.setattr(gui, "settings", current_settings.clone())
 
@@ -170,4 +181,273 @@ def test_build_translate_settings_preserves_current_gui_language_on_save(
 
     assert len(captured_settings) == 1
     assert captured_settings[0].gui_settings.ui_lang == "zh"
+    assert captured_settings[0].gui_settings.server_port == 7860
+    assert captured_settings[0].gui_settings.share is False
+    assert captured_settings[0].gui_settings.auth_file is None
+    assert captured_settings[0].gui_settings.welcome_page == "snapshot-welcome.md"
+    assert captured_settings[0].gui_settings.disable_gui_sensitive_input is True
+    assert captured_settings[0].gui_settings.disable_config_auto_save is True
     assert gui.settings.gui_settings.ui_lang == "zh"
+    assert gui.settings.gui_settings.server_port == 9999
+    assert gui.settings.gui_settings.share is True
+    assert gui.settings.gui_settings.auth_file == str(tmp_path / "runtime-auth.csv")
+    assert gui.settings.gui_settings.welcome_page == "runtime-welcome.md"
+    assert gui.settings.gui_settings.disable_gui_sensitive_input is False
+    assert gui.settings.gui_settings.disable_config_auto_save is False
+
+
+def test_build_translate_settings_follow_settings_respects_auto_save_disabled(
+    tmp_path, monkeypatch
+):
+    gui = _gui(monkeypatch)
+    captured_settings = []
+
+    def capture_user_config(settings):
+        captured_settings.append(settings.clone())
+
+    monkeypatch.setattr(
+        gui.config_manager,
+        "write_user_default_config_file",
+        capture_user_config,
+    )
+
+    current_settings = CLIEnvSettingsModel()
+    current_settings.gui_settings.disable_config_auto_save = True
+
+    input_pdf = tmp_path / "input.pdf"
+    input_pdf.write_bytes(b"%PDF-1.4\n")
+    output_dir = tmp_path / "out"
+    output_dir.mkdir()
+
+    gui._build_translate_settings(
+        current_settings,
+        input_pdf,
+        output_dir,
+        gui.SaveMode.follow_settings,
+        _base_gui_inputs(),
+    )
+
+    assert captured_settings == []
+
+
+def test_build_translate_settings_never_save_mode_skips_config_write(
+    tmp_path, monkeypatch
+):
+    gui = _gui(monkeypatch)
+    captured_settings = []
+
+    def capture_user_config(settings):
+        captured_settings.append(settings.clone())
+
+    monkeypatch.setattr(
+        gui.config_manager,
+        "write_user_default_config_file",
+        capture_user_config,
+    )
+
+    current_settings = CLIEnvSettingsModel()
+
+    input_pdf = tmp_path / "input.pdf"
+    input_pdf.write_bytes(b"%PDF-1.4\n")
+    output_dir = tmp_path / "out"
+    output_dir.mkdir()
+
+    gui._build_translate_settings(
+        current_settings,
+        input_pdf,
+        output_dir,
+        gui.SaveMode.never,
+        _base_gui_inputs(),
+    )
+
+    assert captured_settings == []
+
+
+@pytest.mark.parametrize("save_mode_name", ["never", "follow_settings"])
+def test_build_translate_settings_no_config_snapshot_skips_no_save_without_crash(
+    tmp_path, monkeypatch, save_mode_name
+):
+    gui = _gui(monkeypatch)
+    captured_settings = []
+
+    def capture_user_config(settings):
+        captured_settings.append(settings.clone())
+
+    monkeypatch.setattr(
+        gui.config_manager,
+        "write_user_default_config_file",
+        capture_user_config,
+    )
+    monkeypatch.setattr(gui.config_manager, "config_cli_settings", None)
+
+    current_settings = CLIEnvSettingsModel()
+    current_settings.gui_settings.disable_config_auto_save = True
+
+    input_pdf = tmp_path / "input.pdf"
+    input_pdf.write_bytes(b"%PDF-1.4\n")
+    output_dir = tmp_path / "out"
+    output_dir.mkdir()
+
+    gui._build_translate_settings(
+        current_settings,
+        input_pdf,
+        output_dir,
+        getattr(gui.SaveMode, save_mode_name),
+        _base_gui_inputs(),
+    )
+
+    assert captured_settings == []
+
+
+@pytest.mark.parametrize("save_mode_name", ["always", "follow_settings"])
+def test_build_translate_settings_no_config_snapshot_saves_safe_gui_defaults(
+    tmp_path, monkeypatch, save_mode_name
+):
+    gui = _gui(monkeypatch)
+    captured_settings = []
+
+    def capture_user_config(settings):
+        captured_settings.append(settings.clone())
+
+    monkeypatch.setattr(
+        gui.config_manager,
+        "write_user_default_config_file",
+        capture_user_config,
+    )
+    monkeypatch.setattr(gui.config_manager, "config_cli_settings", None)
+
+    current_settings = CLIEnvSettingsModel()
+    current_settings.gui_settings.ui_lang = "zh"
+    current_settings.gui_settings.server_port = 9999
+    current_settings.gui_settings.share = True
+    current_settings.gui_settings.auth_file = str(tmp_path / "runtime-auth.csv")
+    current_settings.gui_settings.welcome_page = "runtime-welcome.md"
+    current_settings.gui_settings.disable_gui_sensitive_input = True
+    current_settings.gui_settings.disable_config_auto_save = False
+    monkeypatch.setattr(gui, "settings", current_settings.clone())
+
+    input_pdf = tmp_path / "input.pdf"
+    input_pdf.write_bytes(b"%PDF-1.4\n")
+    output_dir = tmp_path / "out"
+    output_dir.mkdir()
+
+    gui._build_translate_settings(
+        current_settings,
+        input_pdf,
+        output_dir,
+        getattr(gui.SaveMode, save_mode_name),
+        _base_gui_inputs(),
+    )
+
+    default_gui_settings = CLIEnvSettingsModel().gui_settings
+    assert len(captured_settings) == 1
+    assert captured_settings[0].gui_settings.ui_lang == "zh"
+    assert captured_settings[0].gui_settings.server_port == default_gui_settings.server_port
+    assert captured_settings[0].gui_settings.share == default_gui_settings.share
+    assert captured_settings[0].gui_settings.auth_file == default_gui_settings.auth_file
+    assert captured_settings[0].gui_settings.welcome_page == default_gui_settings.welcome_page
+    assert (
+        captured_settings[0].gui_settings.disable_gui_sensitive_input
+        == default_gui_settings.disable_gui_sensitive_input
+    )
+    assert (
+        captured_settings[0].gui_settings.disable_config_auto_save
+        == default_gui_settings.disable_config_auto_save
+    )
+    assert gui.settings.gui_settings.ui_lang == "zh"
+    assert gui.settings.gui_settings.server_port == 9999
+    assert gui.settings.gui_settings.share is True
+    assert gui.settings.gui_settings.auth_file == str(tmp_path / "runtime-auth.csv")
+    assert gui.settings.gui_settings.welcome_page == "runtime-welcome.md"
+    assert gui.settings.gui_settings.disable_gui_sensitive_input is True
+    assert gui.settings.gui_settings.disable_config_auto_save is False
+
+
+def test_gui_language_save_preserves_snapshot_gui_security_fields(monkeypatch, tmp_path):
+    gui = _gui(monkeypatch)
+    captured_settings = []
+
+    def capture_user_config(settings):
+        captured_settings.append(settings.clone())
+
+    monkeypatch.setattr(
+        gui.config_manager,
+        "write_user_default_config_file",
+        capture_user_config,
+    )
+    def ignore_language_update(_lang):
+        return None
+
+    monkeypatch.setattr(gui, "update_current_languages", ignore_language_update)
+
+    startup_settings = gui.config_manager.config_cli_settings.clone()
+    startup_settings.gui_settings.ui_lang = "en"
+    startup_settings.gui_settings.server_port = 7860
+    startup_settings.gui_settings.share = False
+    startup_settings.gui_settings.auth_file = None
+    startup_settings.gui_settings.welcome_page = "snapshot-welcome.md"
+    startup_settings.gui_settings.disable_gui_sensitive_input = True
+    startup_settings.gui_settings.disable_config_auto_save = True
+    monkeypatch.setattr(gui.config_manager, "config_cli_settings", startup_settings)
+
+    current_settings = CLIEnvSettingsModel()
+    current_settings.gui_settings.ui_lang = "en"
+    current_settings.gui_settings.server_port = 9999
+    current_settings.gui_settings.share = True
+    current_settings.gui_settings.auth_file = str(tmp_path / "runtime-auth.csv")
+    current_settings.gui_settings.welcome_page = "runtime-welcome.md"
+    current_settings.gui_settings.disable_gui_sensitive_input = False
+    current_settings.gui_settings.disable_config_auto_save = False
+    monkeypatch.setattr(gui, "settings", current_settings)
+
+    gui._save_gui_language_settings("zh")
+
+    assert len(captured_settings) == 1
+    assert captured_settings[0].gui_settings.ui_lang == "zh"
+    assert captured_settings[0].gui_settings.server_port == 7860
+    assert captured_settings[0].gui_settings.share is False
+    assert captured_settings[0].gui_settings.auth_file is None
+    assert captured_settings[0].gui_settings.welcome_page == "snapshot-welcome.md"
+    assert captured_settings[0].gui_settings.disable_gui_sensitive_input is True
+    assert captured_settings[0].gui_settings.disable_config_auto_save is True
+    assert gui.settings.gui_settings.ui_lang == "zh"
+    assert gui.settings.gui_settings.server_port == 9999
+    assert gui.settings.gui_settings.share is True
+    assert gui.settings.gui_settings.auth_file == str(tmp_path / "runtime-auth.csv")
+    assert gui.settings.gui_settings.welcome_page == "runtime-welcome.md"
+    assert gui.settings.gui_settings.disable_gui_sensitive_input is False
+    assert gui.settings.gui_settings.disable_config_auto_save is False
+
+
+def test_gui_language_save_no_config_snapshot_does_not_crash(monkeypatch):
+    gui = _gui(monkeypatch)
+    captured_settings = []
+
+    def capture_user_config(settings):
+        captured_settings.append(settings.clone())
+
+    monkeypatch.setattr(
+        gui.config_manager,
+        "write_user_default_config_file",
+        capture_user_config,
+    )
+    def ignore_language_update(_lang):
+        return None
+
+    monkeypatch.setattr(gui, "update_current_languages", ignore_language_update)
+    monkeypatch.setattr(gui.config_manager, "config_cli_settings", None)
+
+    current_settings = CLIEnvSettingsModel()
+    current_settings.gui_settings.server_port = 9999
+    current_settings.gui_settings.share = True
+    monkeypatch.setattr(gui, "settings", current_settings)
+
+    gui._save_gui_language_settings("zh")
+
+    assert len(captured_settings) == 1
+    assert captured_settings[0].gui_settings.ui_lang == "zh"
+    assert captured_settings[0].gui_settings.server_port != 9999
+    assert captured_settings[0].gui_settings.share is False
+    assert gui.settings.gui_settings.ui_lang == "zh"
+    assert gui.settings.gui_settings.server_port == 9999
+    assert gui.settings.gui_settings.share is True
